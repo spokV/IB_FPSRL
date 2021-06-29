@@ -9,6 +9,8 @@ from misc.args import parse_cfg_args
 import os
 from gen_dataset import generate_dataset
 import eval_world_model as evaluation
+from misc.files import ensure_can_write
+import matplotlib.pyplot as plt
 
 
 class S_RNNCell(Layer):
@@ -115,6 +117,21 @@ def load_training_data(cfg, strict_clean, validation_split):
     training_output, validation_output = np.split(training_output, [ validation_split_i ])
     return training_data, training_input, validation_input, training_output, validation_output
 
+def plot_training_history(cfg, history, title):
+    learning_cfg = cfg['learning']
+    if title == 'loss':
+        write_to = learning_cfg['training_loss_file']
+    else:
+        write_to = learning_cfg['training_mae_file']
+    
+    ensure_can_write(write_to)
+
+    plt.plot(history, label=title)
+    plt.xlabel('epoch')
+    plt.ylabel(title)
+    plt.savefig(write_to)
+    plt.gcf().clear()
+    
 
 def generate_world_model(cfg, clean = False, strict_clean = False):
     '''
@@ -167,14 +184,21 @@ def generate_world_model(cfg, clean = False, strict_clean = False):
     print('Starting training')
     base_lr = learning_cfg['learning_rate']
     steps = learning_cfg['learning_rate_steps']
+    loss = []
+    mae = []
     for lr in map(lambda exp: base_lr * (0.5 ** exp), range(steps)):
         opt = optimizers.RMSprop(learning_rate=lr)
         model.compile(optimizer=opt, loss='mean_squared_error', metrics=['mean_absolute_error'])
-        model.fit(training_input, training_output,
+        history = model.fit(training_input, training_output,
             verbose=1,
             batch_size=learning_cfg['batch_size'],
             epochs=learning_cfg['epochs']
         )
+        loss = np.append(loss, history.history['loss'])
+        mae = np.append(mae, history.history['mean_absolute_error'])      
+     
+    plot_training_history(cfg, loss, 'train loss')
+    plot_training_history(cfg, mae, 'mean_absolute_error')
 
     evaluation.evaluate_world_model(cfg, model=model, eval_input=validation_input, eval_output=validation_output)
 

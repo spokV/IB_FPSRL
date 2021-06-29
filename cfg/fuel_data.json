@@ -4,7 +4,10 @@
     },
     "learning": {
         "validation_output_file": "./evaluation/f_model_metrics.json",
-        "validation_example_file": "./evaluation/f_model_graph.png"
+        "validation_example_file": "./evaluation/f_model_graph.png",
+        "training_loss_file": "./evaluation/f_model_loss_graph.png",
+        "training_mae_file": "./evaluation/f_model_mae_graph.png"
+        
     },
     "data_output_file": "./data/f_blocks.npy",
     "model_output_file": "./models/f_model.h5"
