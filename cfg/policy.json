@@ -5,5 +5,6 @@
         "validation_output_file": "./evaluation/policy_metrics.json"
     },
     "policy_output_file": "./policies/policy.npy",
-    "optimizer_history_file": "./evaluation/optimizer_history_file.png"
+    "optimizer_cost_history_file": "./evaluation/optimizer_cost_history_file.png",
+    "optimizer_pos_history_file": "./evaluation/optimizer_pos_history_file.png"
 }

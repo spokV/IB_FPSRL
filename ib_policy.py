@@ -143,12 +143,23 @@ class PolicyEvaluater:
 
 
 def plot_optimizer_history(cfg, optimizer):
-    write_to = cfg['optimizer_history_file']
+    write_to = cfg['optimizer_cost_history_file']
     ensure_can_write(write_to)
 
     plt.plot(optimizer.cost_history, label='optimizer best cost')
     plt.xlabel('iteration')
     plt.ylabel('Cost')
+    plt.savefig(write_to)
+    plt.gcf().clear()
+
+    write_to = cfg['optimizer_pos_history_file']
+    ensure_can_write(write_to)
+
+    x = optimizer.pos_history[:,0]
+    y = optimizer.pos_history[:,1]
+    plt.scatter(x, y)
+    plt.xlabel('position #1 dim')
+    plt.ylabel('position #2 dim')
     plt.savefig(write_to)
     plt.gcf().clear()
 
@@ -223,7 +234,7 @@ def generate_policy(cfg, clean = False, strict_clean = False):
         _, policy_weights = optimizer.optimize(
             evaluater,
             #print_step=int(0.1 * PSO_ITERS),
-            iters=PSO_ITERS,
+            iters=2,#PSO_ITERS,
             verbose=True
         )
 
