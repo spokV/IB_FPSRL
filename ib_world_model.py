@@ -180,7 +180,7 @@ def generate_world_model(cfg, clean = False, strict_clean = False):
     cell = S_RNNCell(Y_DIM, STATE_DIM, SELF_INPUT, Z_DIM, A_DIM)
     model = Sequential()
     model.add(RNN(cell, return_sequences=True))
-
+    
     print('Starting training')
     base_lr = learning_cfg['learning_rate']
     steps = learning_cfg['learning_rate_steps']
@@ -195,8 +195,10 @@ def generate_world_model(cfg, clean = False, strict_clean = False):
             epochs=learning_cfg['epochs']
         )
         loss = np.append(loss, history.history['loss'])
-        mae = np.append(mae, history.history['mean_absolute_error'])      
+        mae = np.append(mae, history.history['mean_absolute_error'])  
+        #print(model.summary())    
      
+    print(model.summary())
     plot_training_history(cfg, loss, 'train loss')
     plot_training_history(cfg, mae, 'mean_absolute_error')
 
