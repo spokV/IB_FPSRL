@@ -11,6 +11,8 @@ import pyswarms as ps
 import os
 from multiprocessing.pool import Pool
 from policy import load_policy, Policy, TrajectoryGenerator, TrajectoryCosts
+import matplotlib.pyplot as plt
+from pyswarms.utils.plotters.formatters import Mesher, Designer
 
 
 def mk_weights(weight_horizon, initial_weight):
@@ -140,6 +142,17 @@ class PolicyEvaluater:
         self.p.__exit__(*args, **kwargs)
 
 
+def plot_optimizer_history(cfg, optimizer):
+    write_to = cfg['optimizer_history_file']
+    ensure_can_write(write_to)
+
+    plt.plot(optimizer.cost_history, label='optimizer best cost')
+    plt.xlabel('iteration')
+    plt.ylabel('Cost')
+    plt.savefig(write_to)
+    plt.gcf().clear()
+
+
 def generate_policy(cfg, clean = False, strict_clean = False):
     '''
     Generates a policy based on a world model. Loads the policy if at
@@ -211,8 +224,10 @@ def generate_policy(cfg, clean = False, strict_clean = False):
             evaluater,
             #print_step=int(0.1 * PSO_ITERS),
             iters=PSO_ITERS,
-            verbose=3
+            verbose=True
         )
+
+    plot_optimizer_history(cfg, optimizer)
 
     evaluation.evaluate_policy(cfg, policy_weights)
 
