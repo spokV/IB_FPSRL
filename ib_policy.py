@@ -209,7 +209,7 @@ def generate_policy(cfg, clean = False, strict_clean = False):
         INITIAL_WEIGHT, T_0_INDEX + 1, PSO_ITERS * PARTICLES_NUM, policy_args) as evaluater:
         _, policy_weights = optimizer.optimize(
             evaluater,
-            print_step=int(0.1 * PSO_ITERS),
+            #print_step=int(0.1 * PSO_ITERS),
             iters=PSO_ITERS,
             verbose=3
         )
