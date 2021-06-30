@@ -12,7 +12,6 @@ import os
 from multiprocessing.pool import Pool
 from policy import load_policy, Policy, TrajectoryGenerator, TrajectoryCosts
 import matplotlib.pyplot as plt
-from pyswarms.utils.plotters.formatters import Mesher, Designer
 
 
 def mk_weights(weight_horizon, initial_weight):
@@ -155,15 +154,28 @@ def plot_optimizer_history(cfg, optimizer):
     write_to = cfg['optimizer_pos_history_file']
     ensure_can_write(write_to)
 
-    x = optimizer.pos_history[:,0]
-    y = optimizer.pos_history[:,1]
-    plt.scatter(x, y)
+    
+def plot_optimizer_history_pos(cfg, optimizer, iteration, num_particles):
+    write_to = cfg['optimizer_pos_history_file']
+    ensure_can_write(write_to)
+
+    fname = write_to.split('.')
+    fname.insert(-1, str(iteration))
+    fname = '.'.join(fname)
+    ensure_can_write(fname)
+    
+    positions_x = []
+    positions_y = []
+    for j in range(num_particles):
+        positions_x = np.append(positions_x, optimizer.pos_history[iteration][j][0])
+        positions_y = np.append(positions_y, optimizer.pos_history[iteration][j][1])
+    plt.scatter(positions_x, positions_y)
     plt.xlabel('position #1 dim')
     plt.ylabel('position #2 dim')
-    plt.savefig(write_to)
+    plt.savefig(fname)
     plt.gcf().clear()
 
-
+    
 def generate_policy(cfg, clean = False, strict_clean = False):
     '''
     Generates a policy based on a world model. Loads the policy if at
@@ -178,7 +190,8 @@ def generate_policy(cfg, clean = False, strict_clean = False):
     '''
     write_to = cfg['policy_output_file']
     if os.path.isfile(write_to) and not (clean or strict_clean):
-        return load_policy(*np.load(write_to))
+        policy = np.load(write_to, allow_pickle=True)
+        return load_policy(policy)
 
     policy_cfg = cfg['policy']
     pso_cfg = cfg['particle_swarm']
@@ -234,11 +247,13 @@ def generate_policy(cfg, clean = False, strict_clean = False):
         _, policy_weights = optimizer.optimize(
             evaluater,
             #print_step=int(0.1 * PSO_ITERS),
-            iters=2,#PSO_ITERS,
+            iters=20,#PSO_ITERS,
             verbose=True
         )
 
     plot_optimizer_history(cfg, optimizer)
+    plot_optimizer_history_pos(cfg, optimizer, 0, PARTICLES_NUM)
+    plot_optimizer_history_pos(cfg, optimizer, 19, PARTICLES_NUM)
 
     evaluation.evaluate_policy(cfg, policy_weights)
 
