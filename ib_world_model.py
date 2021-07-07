@@ -1,6 +1,6 @@
-from keras import backend as K, optimizers
-from keras.models import Sequential, load_model
-from keras.layers import RNN, Layer
+from tensorflow.keras import backend as K, optimizers
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import RNN, Layer
 import numpy as np
 from argparse import ArgumentParser
 from misc.dicts import load_data_cfg
@@ -11,6 +11,7 @@ from gen_dataset import generate_dataset
 import eval_world_model as evaluation
 from misc.files import ensure_can_write
 import matplotlib.pyplot as plt
+from tensorflow.python.client import device_lib
 
 
 class S_RNNCell(Layer):
@@ -144,6 +145,7 @@ def generate_world_model(cfg, clean = False, strict_clean = False):
     Model
         Keras model
     '''
+    print(device_lib.list_local_devices())
     write_to = cfg['model_output_file']
     gen_cfg = cfg['generation']
     learning_cfg = cfg['learning']

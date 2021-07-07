@@ -94,6 +94,7 @@ class PolicyEvaluater:
         self.eval_window_weights = mk_weights(eval_window, eval_weight)
         self.time_series_len = time_series_len
         self.p = Pool(
+            processes=4,
             initializer=init_trajectory_generator,
             initargs=[ policy_args, {
                 'initial_setpoints': eval_setpoints,
@@ -247,13 +248,13 @@ def generate_policy(cfg, clean = False, strict_clean = False):
         _, policy_weights = optimizer.optimize(
             evaluater,
             #print_step=int(0.1 * PSO_ITERS),
-            iters=20,#PSO_ITERS,
+            iters=PSO_ITERS,
             verbose=True
         )
 
     plot_optimizer_history(cfg, optimizer)
     plot_optimizer_history_pos(cfg, optimizer, 0, PARTICLES_NUM)
-    plot_optimizer_history_pos(cfg, optimizer, 19, PARTICLES_NUM)
+    plot_optimizer_history_pos(cfg, optimizer, PSO_ITERS - 1, PARTICLES_NUM)
 
     evaluation.evaluate_policy(cfg, policy_weights)
 

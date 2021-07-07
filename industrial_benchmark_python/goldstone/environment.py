@@ -1,13 +1,11 @@
 # coding=utf-8
-from industrial_benchmark_python.IDS import IDS
-import numpy as np
-import matplotlib.pyplot as plt
+from __future__ import division
 '''
 The MIT License (MIT)
 
 Copyright 2017 Siemens AG
 
-Author: Stefan Depeweg
+Author: Alexander Hentschel
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,20 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-n_trajectories = 10
-T = 1000
+from .dynamics import dynamics
 
-data = np.zeros((n_trajectories,T))
-data_cost = np.zeros((n_trajectories,T))
+class environment:
+    def __init__(self, number_steps, max_required_step, safe_zone):
+        self._dynamics = dynamics(number_steps, max_required_step, safe_zone)
 
-for k in range(n_trajectories):
-    env = IDS(p=100)
-    for t in range(T):
-        at = 2 * np.random.rand(3) -1
-        markovStates = env.step(at)
-        data[k,t] = env.visibleState()[-1]
+    def reward(self, phi_idx, position):
+        return self._dynamics.reward(phi_idx, position)
 
-plt.plot(data.T)
-plt.xlabel('T')
-plt.ylabel('Reward')
-plt.show()
+    def state_transition(self, domain, phi_idx, system_response, position):
+        domain, phi_idx, system_response = self._dynamics.state_transition(domain, phi_idx, system_response, position)
+        return self.reward(phi_idx, position), domain, phi_idx, system_response
